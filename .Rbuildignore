@@ -10,3 +10,4 @@
 ^codecov\.yml$
 ^vignettes/articles$
 ^app\.R$
+^CLAUDE\.md$

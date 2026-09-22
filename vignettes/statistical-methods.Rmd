@@ -39,13 +39,13 @@ and avoids intervals outside [0, 1].
 
 ```{r}
 # 15 out of 20 patients achieving target
-wilson_ci(k = 15, n = 20)
+wilson_ci(x = 15, n = 20)
 ```
 
 ```{r}
 # Compare small vs large sample
-wilson_ci(k = 3, n = 5)    # Small sample — wide interval
-wilson_ci(k = 60, n = 100) # Large sample — narrow interval
+wilson_ci(x = 3, n = 5)    # Small sample — wide interval
+wilson_ci(x = 60, n = 100) # Large sample — narrow interval
 ```
 
 ### Applied to Centre Data
@@ -53,7 +53,7 @@ wilson_ci(k = 60, n = 100) # Large sample — narrow interval
 ```{r}
 # Compute URR achievement with CIs
 urr <- compute_urr_achievement(df)
-urr[, c("centre_code", "n", "in_target", "proportion", "lower", "upper")]
+urr[, c("centre_code", "n", "x", "proportion", "lower_ci", "upper_ci")]
 ```
 
 ## Caterpillar Plots
@@ -86,7 +86,7 @@ binomial variation around the national mean.
 ```{r}
 # Compute funnel limits for a range of sample sizes
 limits <- funnel_limits(
-  p = 0.70,          # National proportion
+  target_rate = 0.70,  # National proportion
   n_range = c(20, 300)
 )
 head(limits)
