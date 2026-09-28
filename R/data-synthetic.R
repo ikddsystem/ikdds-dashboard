@@ -26,22 +26,24 @@ generate_synthetic_data <- function(seed = 42, n_total = 2000) {
   centres <- load_centres()
   n_centres <- nrow(centres)
 
-  # Distribute patients across 23 centres (weights sum to 1.0)
-  centre_weights <- c(
-    0.115, 0.070, 0.060, 0.090, 0.100,   # BEA MAT SVH TAL CUH
-    0.030, 0.050, 0.045, 0.050, 0.035,   # UHK UHL WAT GUH MAY
-    0.030, 0.025, 0.030, 0.035,           # SLI LET CAV TUL
-    0.030, 0.025, 0.035, 0.025, 0.020,   # NCR DRO BCN CLN POR
-    0.025, 0.020, 0.020, 0.035            # FKK WEX LSU WEL
-  )
-  centre_ns <- as.integer(round(n_total * centre_weights))
-  centre_ns[1] <- centre_ns[1] + (n_total - sum(centre_ns))  # adjust rounding
+  # Distribute patients across centres: main renal units are larger than
+  # satellites, and the paediatric unit is small
+  unit_weight <- c(Renal = 1.5, Satellite = 1, Paediatric = 0.3)
+  centre_weights <- unname(unit_weight[centres$unit_type])
+  centre_weights <- centre_weights / sum(centre_weights)
+  # Largest-remainder rounding so counts sum to n_total and are never negative
+  raw_ns <- n_total * centre_weights
+  centre_ns <- as.integer(floor(raw_ns))
+  shortfall <- n_total - sum(centre_ns)
+  top_up <- order(raw_ns - centre_ns, decreasing = TRUE)[seq_len(shortfall)]
+  centre_ns[top_up] <- centre_ns[top_up] + 1L
 
   patients <- list()
   record_counter <- 0L
 
   for (i in seq_len(n_centres)) {
     ni <- centre_ns[i]
+    if (ni == 0) next
     centre_code <- centres$centre_code[i]
     centre_name <- centres$centre_name[i]
     is_satellite <- if ("unit_type" %in% names(centres)) {
@@ -195,86 +197,19 @@ generate_synthetic_data <- function(seed = 42, n_total = 2000) {
 
 #' Load Irish renal centres reference data
 #'
-#' @return A tibble with centre_code, centre_name, region.
+#' Centres are keyed by the REDCap `pat01` ("Hospital centre code") dropdown
+#' codes, so `centre_code` is a character code such as `"10"` (Beaumont).
+#' `pat01` codes that are not dialysis centres (26 Dialysis Away from Base,
+#' 27 Saolta Region, 100 National Transplant Centre) are deliberately absent.
+#'
+#' @return A tibble with `centre_code`, `centre_name`, `region`,
+#'   `unit_code`, `unit_name`, `unit_type`.
 #'
 #' @keywords internal
 load_centres <- function() {
   path <- system.file("extdata", "irish_renal_centres.csv",
-                      package = "ikdds.dashboard", mustWork = FALSE)
-  if (nzchar(path)) {
-    readr::read_csv(path, show_col_types = FALSE)
-  } else {
-    # Fallback for when package is not installed
-    tibble::tibble(
-      centre_code = c("BEA", "MAT", "SVH", "TAL",
-                       "CUH", "UHK", "UHL", "WAT", "GUH",
-                       "MAY", "SLI", "LET", "CAV", "TUL",
-                       "NCR", "DRO", "BCN", "CLN", "POR",
-                       "FKK", "WEX", "LSU", "WEL"),
-      centre_name = c("Beaumont Hospital",
-                      "Mater Misericordiae University Hospital",
-                      "St Vincent's University Hospital",
-                      "Tallaght University Hospital",
-                      "Cork University Hospital",
-                      "University Hospital Kerry",
-                      "University Hospital Limerick",
-                      "University Hospital Waterford",
-                      "Merlin Park University Hospital",
-                      "Mayo University Hospital",
-                      "Sligo University Hospital",
-                      "Letterkenny University Hospital",
-                      "Cavan General Hospital",
-                      "Midland Regional Hospital Tullamore",
-                      "Northern Cross Dialysis Unit",
-                      "Drogheda Dialysis Unit",
-                      "Beacon Renal Sandyford",
-                      "Clondalkin Dialysis Unit",
-                      "Portlaoise Dialysis Unit",
-                      "Kilkenny Dialysis Unit",
-                      "Wexford Dialysis Unit",
-                      "Limerick Satellite Dialysis Unit",
-                      "Wellstone Renal Dialysis Clinic"),
-      region = c("Dublin and North East", "Dublin and Midlands",
-                 "Dublin and Midlands", "Dublin and Midlands",
-                 "South", "South West", "Mid West", "South",
-                 "West and North West", "West and North West",
-                 "West and North West", "West and North West",
-                 "West and North West", "Dublin and Midlands",
-                 "Dublin and North East", "Dublin and North East",
-                 "Dublin and Midlands", "Dublin and Midlands",
-                 "Dublin and Midlands", "South", "South",
-                 "Mid West", "West and North West"),
-      unit_code = c("BEA", "MAT", "SVH", "TAL",
-                    "CUH", "UHK", "UHL", "WAT", "GUH",
-                    "MAY", "SLI", "LET", "CAV", "TUL",
-                    "BEA", "BEA", "MAT", "TAL", "TAL",
-                    "CUH", "CUH", "UHL", "GUH"),
-      unit_name = c("Beaumont Hospital",
-                    "Mater Misericordiae University Hospital",
-                    "St Vincent's University Hospital",
-                    "Tallaght University Hospital / St James's Hospital",
-                    "Cork University Hospital",
-                    "University Hospital Kerry",
-                    "University Hospital Limerick",
-                    "University Hospital Waterford",
-                    "Galway University Hospitals",
-                    "Mayo University Hospital",
-                    "Sligo University Hospital",
-                    "Letterkenny University Hospital",
-                    "Cavan General Hospital",
-                    "Midland Regional Hospital Tullamore",
-                    "Beaumont Hospital",
-                    "Beaumont Hospital",
-                    "Mater Misericordiae University Hospital",
-                    "Tallaght University Hospital / St James's Hospital",
-                    "Tallaght University Hospital / St James's Hospital",
-                    "Cork University Hospital",
-                    "Cork University Hospital",
-                    "University Hospital Limerick",
-                    "Galway University Hospitals"),
-      unit_type = c(rep("Renal", 14), rep("Satellite", 9))
-    )
-  }
+                      package = "ikdds.dashboard", mustWork = TRUE)
+  readr::read_csv(path, col_types = readr::cols(.default = "c"))
 }
 
 #' Load ERA PRD code lookup

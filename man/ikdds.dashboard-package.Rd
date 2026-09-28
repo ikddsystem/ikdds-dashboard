@@ -6,13 +6,13 @@
 \alias{ikdds.dashboard-package}
 \title{ikdds.dashboard: IKDDS Haemodialysis Audit Dashboard}
 \description{
-Interactive Shiny dashboard for the Irish Kidney Disease Data System (IKDDS) annual haemodialysis audit. Renders 23 clinical metrics across 7 domains (demographics, PRD, dialysis adequacy, blood pressure, biochemistry, anaemia, vascular access) as caterpillar plots, funnel plots, and patient-level drill-down tables. Supports both synthetic demo data and live REDCap data sources.
+Interactive Shiny dashboard for the Irish Kidney Disease Data System (IKDDS) annual haemodialysis audit. Provides 14 pages covering 23 clinical metrics across 7 domains (demographics, PRD, dialysis adequacy, blood pressure, biochemistry, anaemia, vascular access) as caterpillar plots, funnel plots, centre profiles, individual patient QA, and drill-down tables. Supports both synthetic demo data and live REDCap data sources.
 }
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://conorjudge.github.io/ikdds/}
-  \item \url{https://conorjudge.github.io/ikdds.dashboard/}
+  \item \url{https://github.com/ikddsystem/ikdds-dashboard}
+  \item \url{https://ikddsystem.github.io/ikdds-dashboard/}
 }
 
 }

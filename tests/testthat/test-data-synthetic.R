@@ -20,9 +20,9 @@ test_that("generate_synthetic_data produces approximately correct row count", {
   expect_equal(nrow(df), 200)
 })
 
-test_that("generate_synthetic_data has 23 centres", {
+test_that("generate_synthetic_data covers every centre", {
   df <- generate_synthetic_data(seed = 1, n_total = 200)
-  expect_equal(length(unique(df$centre_code)), 23)
+  expect_setequal(unique(df$centre_code), load_centres()$centre_code)
 })
 
 test_that("generate_synthetic_data is reproducible with same seed", {

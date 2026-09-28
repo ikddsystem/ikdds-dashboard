@@ -17,6 +17,8 @@ A named list with class \code{dashboard_config} containing:
 \item \code{redcap_uri}: REDCap API endpoint (required if data_source is redcap)
 \item \code{redcap_token}: REDCap API token
 \item \code{cache_ttl}: Cache time-to-live in seconds (default 3600)
+\item \code{cache_dir}: Directory for the on-disk REDCap data cache (default
+the user cache directory from \code{\link[tools:userdir]{tools::R_user_dir()}})
 \item \code{app_title}: Dashboard title
 \item \code{debug}: Enable debug mode
 }

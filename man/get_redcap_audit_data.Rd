@@ -13,7 +13,24 @@ get_redcap_audit_data(config)
 A tibble in the same format as \code{\link[=generate_synthetic_data]{generate_synthetic_data()}}.
 }
 \description{
-Reads patient data from REDCap using the \code{ikdds} package, then selects
-and transforms the relevant fields for the dashboard.
+Reads the fields the dashboard needs from REDCap, then collapses the
+longitudinal export to one row per patient.
+}
+\details{
+The IKDDS REDCap project stores demographics as a non-repeating form and
+clinical data (\code{diagnoses}, \code{lab_results}, \code{observations},
+\code{hd_prescription}, \code{hd_sessions}) as repeating instruments, so each patient
+arrives as several sparse rows. Each clinical value is taken from the
+patient's most recent dated result (see \code{\link[=redcap_latest_fields]{redcap_latest_fields()}}).
+
+Centre comes from \code{pat01} (Hospital centre code). Codes without an entry
+in \code{\link[=load_centres]{load_centres()}} (e.g. 26 Dialysis Away from Base, 27 Saolta Region,
+100 National Transplant Centre) get \code{centre_code = NA}: the patient stays
+in national figures but not centre comparisons.
+
+The full export is large and slow, so the collapsed result is cached on
+disk in \code{config$cache_dir} and reused until it is older than
+\code{config$cache_ttl} seconds. The cache survives app restarts and is shared
+by every browser session. Set \code{IKDDS_DASH_CACHE_TTL=0} to force a refresh.
 }
 \keyword{internal}

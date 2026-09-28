@@ -2,17 +2,21 @@
 % Please edit documentation in R/data-redcap.R
 \name{map_centre_code}
 \alias{map_centre_code}
-\title{Map data access group to centre code}
+\title{Map pat01 hospital centre code to dashboard centre code}
 \usage{
-map_centre_code(dag)
+map_centre_code(pat01, known_codes)
 }
 \arguments{
-\item{dag}{Character vector of REDCap data access group names.}
+\item{pat01}{Vector of REDCap \code{pat01} dropdown codes.}
+
+\item{known_codes}{Character vector of valid centre codes, from
+\code{\link[=load_centres]{load_centres()}}.}
 }
 \value{
-Character vector of centre codes.
+Character vector of centre codes; \code{NA} for codes that are not
+dialysis centres (e.g. 26, 27, 100) or are missing.
 }
 \description{
-Map data access group to centre code
+Map pat01 hospital centre code to dashboard centre code
 }
 \keyword{internal}

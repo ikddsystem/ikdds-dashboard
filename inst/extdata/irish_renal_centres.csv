@@ -1,24 +1,27 @@
 centre_code,centre_name,region,unit_code,unit_name,unit_type
-BEA,Beaumont Hospital,Dublin and North East,BEA,Beaumont Hospital,Renal
-MAT,Mater Misericordiae University Hospital,Dublin and Midlands,MAT,Mater Misericordiae University Hospital,Renal
-SVH,St Vincent's University Hospital,Dublin and Midlands,SVH,St Vincent's University Hospital,Renal
-TAL,Tallaght University Hospital,Dublin and Midlands,TAL,Tallaght University Hospital / St James's Hospital,Renal
-CUH,Cork University Hospital,South,CUH,Cork University Hospital,Renal
-UHK,University Hospital Kerry,South West,UHK,University Hospital Kerry,Renal
-UHL,University Hospital Limerick,Mid West,UHL,University Hospital Limerick,Renal
-WAT,University Hospital Waterford,South,WAT,University Hospital Waterford,Renal
-GUH,Merlin Park University Hospital,West and North West,GUH,Galway University Hospitals,Renal
-MAY,Mayo University Hospital,West and North West,MAY,Mayo University Hospital,Renal
-SLI,Sligo University Hospital,West and North West,SLI,Sligo University Hospital,Renal
-LET,Letterkenny University Hospital,West and North West,LET,Letterkenny University Hospital,Renal
-CAV,Cavan General Hospital,West and North West,CAV,Cavan General Hospital,Renal
-TUL,Midland Regional Hospital Tullamore,Dublin and Midlands,TUL,Midland Regional Hospital Tullamore,Renal
-NCR,Northern Cross Dialysis Unit,Dublin and North East,BEA,Beaumont Hospital,Satellite
-DRO,Drogheda Dialysis Unit,Dublin and North East,BEA,Beaumont Hospital,Satellite
-BCN,Beacon Renal Sandyford,Dublin and Midlands,MAT,Mater Misericordiae University Hospital,Satellite
-CLN,Clondalkin Dialysis Unit,Dublin and Midlands,TAL,Tallaght University Hospital / St James's Hospital,Satellite
-POR,Portlaoise Dialysis Unit,Dublin and Midlands,TAL,Tallaght University Hospital / St James's Hospital,Satellite
-FKK,Kilkenny Dialysis Unit,South,CUH,Cork University Hospital,Satellite
-WEX,Wexford Dialysis Unit,South,CUH,Cork University Hospital,Satellite
-LSU,Limerick Satellite Dialysis Unit,Mid West,UHL,University Hospital Limerick,Satellite
-WEL,Wellstone Renal Dialysis Clinic,West and North West,GUH,Galway University Hospitals,Satellite
+1,Cavan General Hospital,Dublin and North East,1,Cavan General Hospital,Renal
+2,Letterkenny University Hospital,West and North West,2,Letterkenny University Hospital,Renal
+3,Sligo General Hospital,West and North West,3,Sligo General Hospital,Renal
+4,Merlin Park University Hospital,West and North West,4,Merlin Park University Hospital,Renal
+5,University Hospital Galway,West and North West,5,University Hospital Galway,Renal
+6,Mayo General Hospital,West and North West,6,Mayo General Hospital,Renal
+7,Cork University Hospital,South West,7,Cork University Hospital,Renal
+8,Kerry General Hospital,South West,8,Kerry General Hospital,Renal
+9,Mater Misericordiae University Hospital,Dublin and North East,9,Mater Misericordiae University Hospital,Renal
+10,Beaumont University Hospital,Dublin and North East,10,Beaumont University Hospital,Renal
+11,University Hospital Waterford,Dublin and South East,11,University Hospital Waterford,Renal
+12,Midland Regional Hospital at Tullamore,Dublin and Midlands,12,Midland Regional Hospital at Tullamore,Renal
+13,University Hospital Limerick,Mid West,13,University Hospital Limerick,Renal
+14,St Vincents University Hospital,Dublin and South East,14,St Vincents University Hospital,Renal
+15,Beacon Renal Drogheda,Dublin and North East,15,Beacon Renal Drogheda,Satellite
+16,Beacon Renal Sandyford,Dublin and South East,16,Beacon Renal Sandyford,Satellite
+17,Beacon Renal Tallaght,Dublin and Midlands,17,Beacon Renal Tallaght,Satellite
+18,Tallaght University Hospital,Dublin and Midlands,18,Tallaght University Hospital,Renal
+19,Fresenius Dock Road,Mid West,19,Fresenius Dock Road,Satellite
+20,Northern Cross Dialysis Centre,Dublin and North East,20,Northern Cross Dialysis Centre,Satellite
+21,Kilkenny Satellite Dialysis Unit,Dublin and South East,21,Kilkenny Satellite Dialysis Unit,Satellite
+22,Temple Street CUH,Dublin and North East,22,Temple Street CUH,Paediatric
+23,Wellstone Clinic Galway,West and North West,23,Wellstone Clinic Galway,Satellite
+24,Wellstone Clinic Wexford,Dublin and South East,24,Wellstone Clinic Wexford,Satellite
+25,Wellstone Clinic Portlaoise,Dublin and Midlands,25,Wellstone Clinic Portlaoise,Satellite
+28,St James Hospital Dublin,Dublin and Midlands,28,St James Hospital Dublin,Renal

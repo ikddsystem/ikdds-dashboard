@@ -13,6 +13,7 @@ map_access_type(code)
 Character vector of access type labels.
 }
 \description{
-Map vascular access code to type
+Groups the REDCap \code{qhd20} dropdown (codelist RR2) into the audit's three
+access categories. PD catheters (\code{PDC}, \code{PDE}, \code{PDT}) map to \code{NA}.
 }
 \keyword{internal}

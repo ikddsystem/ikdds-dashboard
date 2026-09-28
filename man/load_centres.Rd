@@ -7,9 +7,13 @@
 load_centres()
 }
 \value{
-A tibble with centre_code, centre_name, region.
+A tibble with \code{centre_code}, \code{centre_name}, \code{region},
+\code{unit_code}, \code{unit_name}, \code{unit_type}.
 }
 \description{
-Load Irish renal centres reference data
+Centres are keyed by the REDCap \code{pat01} ("Hospital centre code") dropdown
+codes, so \code{centre_code} is a character code such as \code{"10"} (Beaumont).
+\code{pat01} codes that are not dialysis centres (26 Dialysis Away from Base,
+27 Saolta Region, 100 National Transplant Centre) are deliberately absent.
 }
 \keyword{internal}
