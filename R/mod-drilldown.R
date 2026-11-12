@@ -21,6 +21,10 @@ mod_drilldown_ui <- function(id) {
           shiny::selectInput(
             ns("drilldown_centre"), NULL,
             choices = NULL, width = "250px"
+          ),
+          shiny::textInput(
+            ns("drilldown_patient_id"), NULL,
+            placeholder = "Patient ID", width = "150px"
           )
         )
       ),
@@ -55,7 +59,7 @@ mod_drilldown_server <- function(id, filtered_data) {
 
     drilldown_data <- shiny::reactive({
       shiny::req(input$drilldown_centre)
-      filtered_data() |>
+      df <- filtered_data() |>
         dplyr::filter(.data$centre_code == input$drilldown_centre) |>
         dplyr::select(
           `ID` = "record_id",
@@ -77,6 +81,13 @@ mod_drilldown_server <- function(id, filtered_data) {
           `Ferritin` = "qblf1",
           `Access` = "qhd20"
         )
+
+      pid <- trimws(input$drilldown_patient_id)
+      if (nchar(pid) > 0) {
+        df <- df |> dplyr::filter(grepl(pid, .data$ID, ignore.case = TRUE))
+      }
+
+      df
     })
 
     output$patient_table <- DT::renderDT({

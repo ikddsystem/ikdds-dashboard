@@ -70,7 +70,7 @@ get_redcap_audit_data <- function(config) {
       unit_code   = as.character(.data$pat01),
       unit_name   = map_centre_code(.data$pat01),
       unit_type   = map_centre_type(.data$pat01),
-      consultant  = NA_character_
+      consultant  = as.character(.data$pat39)
     ) |>
     # Drop raw versions of columns that come from aggregation summaries
     dplyr::select(-dplyr::any_of(summary_cols)) |>
