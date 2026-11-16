@@ -1,0 +1,163 @@
+---
+title: "Architecture"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Architecture}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+This article is for people changing the package, rather than using it. It
+describes how a number gets from the data source onto a plot, and where to
+intervene when you need to change one.
+
+The short version: the app is **data-driven from two registries plus a compute
+engine**. Almost nothing about a metric is hard-coded in the Shiny layer —
+adding one is a YAML entry plus a function, and the engine does the rest.
+
+## The four layers
+
+### 1. Data source
+
+`R/data-source.R`, `R/data-synthetic.R`, `R/data-redcap.R`.
+
+`get_audit_data(config)` is a factory returning a tibble with one row per
+patient. Both the synthetic and the REDCap source produce the *identical*
+column schema, defined by `audit_data_columns()` and enforced by
+`validate_audit_data()`. That equivalence is what lets every downstream layer
+be tested without credentials.
+
+Column names are raw REDCap field codes — `qblg9` (URR), `qble1` (Hb), `qhd20`
+(vascular access). See the `get_audit_data()` roxygen for the full mapping.
+
+The codes look unreadable and stay anyway: they are the field names in the UKRR
+v5.1 REDCap project, so a metric definition can be checked against the canonical
+dictionary in `ikdds-etl` by eye. Renaming them here would break that link and
+hide drift rather than fix it.
+
+### 2. Metrics registry
+
+`inst/metrics/metrics.yml` → `R/metrics-registry.R`.
+
+The YAML is the single source of truth for each metric's title, domain, target,
+`value_field`, suppression threshold, and — critically — `compute_fn`, the
+*name* of the R function that computes it.
+
+`metrics_registry()` reads and caches the YAML. Call `reset_registry_cache()`
+after editing it in a live session, or you will be debugging a stale metric that
+the file on disk no longer describes.
+
+`value_field` codes are not ours to invent: they must exist in the canonical
+dictionary held by `ikdds-etl`. After editing the YAML, check it:
+
+```bash
+Rscript ../ikdds-etl/tools/check_dictionary_drift.R inst/metrics/metrics.yml
+```
+
+The older NESKDDS sample REDCap project and the CRF/DRS drafts use a different
+coding scheme with zero overlap with this one. If you find a code there, it is
+historical record, not a spec — see `ikdds-etl` and its `DRIFT_REPORT.md`.
+
+### 3. Metrics engine
+
+`R/metrics-engine.R`.
+
+`compute_with_engine(data, metric_id, group_col)` is the standard pipeline:
+
+1. look up the metric config in the registry;
+2. resolve `compute_fn` by name from the package namespace and call it;
+3. add completeness labels;
+4. apply small-n suppression.
+
+`group_col` is `"centre_code"`, `"consultant"`, or `"region"` — the "compare by"
+toggle in the UI.
+
+**Suppression is a disclosure control, not a plotting nicety.**
+`apply_suppression()` (default `min_n = 10`, set per metric in the YAML) sets
+the proportion, median, CIs *and `n` itself* to `NA` for under-sized groups.
+`n` is included deliberately: there are 23 centres and several are small
+satellite units, so "2 of 3 patients" is potentially patient-identifying even
+with no identifier attached to it.
+
+Going around the engine is how suppression gets lost. A compute function that a
+page calls directly is a bug even when the numbers look right, and so is
+recomputing a count from the raw tibble for a label or a tooltip.
+
+### 4. Domain compute functions
+
+`R/metrics-{domain}.R` — one file per clinical domain (dialysis, bp,
+biochemistry, anaemia, access, demographics, prd, data quality).
+
+These return tidy tibbles via the shared builders in `R/metrics-helpers.R`:
+`compute_centre_proportion()` and `compute_centre_median()`, which carry Wilson
+CIs, median CIs, and funnel limits. A function named by `compute_fn` must accept
+`data` and optionally `group_col`.
+
+Use the shared builders rather than a bespoke `mean()`. Wilson intervals are
+there because centre denominators are small and a normal-approximation interval
+misbehaves exactly where this audit is most sensitive — a small unit near 0% or
+100%. An interval that is wrong in that corner is an outlier accusation against
+a named hospital. `vignettes/statistical-methods.Rmd` covers the statistics in
+full.
+
+## Missingness is a finding, not a nuisance
+
+`add_completeness_labels()` puts "(X% missing)" on the centre label on purpose.
+A centre that does not report URR and a centre with poor URR must not look the
+same on a plot.
+
+Do not drop incomplete rows to make a chart tidier, and do not impute anything:
+the audit reports what was recorded. `vignettes/data-quality-workflow.Rmd`
+describes how completeness is surfaced to the data manager.
+
+## Adding or changing a metric
+
+1. Add or edit the entry in `inst/metrics/metrics.yml`.
+2. Write the matching `compute_*` function in the relevant
+   `R/metrics-{domain}.R` — or reuse an existing one — and `@export` it so the
+   engine can resolve it by name.
+3. If the metric appears on the spec/handover, register it in
+   `dashboard_registry()` too (see below).
+4. Run the drift check, then `devtools::document()` and `devtools::test()`.
+
+```{r}
+# After editing the YAML in a live session
+reset_registry_cache()
+compute_with_engine(get_audit_data(), "urr_achievement", "centre_code")
+```
+
+## The Shiny layer
+
+`R/ui.R` and `R/server.R` wire everything together. Each page is a Shiny module
+pair, `mod_{domain}_ui()` / `mod_{domain}_server()`, in `R/mod-{domain}.R`.
+
+`mod_filters` owns the cascading centre/consultant filters and exposes the
+reactives `filtered_data`, `compare_by`, and `active_filters`, which
+`app_server()` passes down to every module.
+
+**Role-based row filtering happens once**, in `app_server()` via
+`filter_by_role()` (`R/access-control.R`), before data reaches any module. Do
+not re-filter inside a module, and do not pass unfiltered data past that point:
+a clinical user must not be able to reach another centre's rows through a module
+that forgot.
+
+## Spec / Power BI handover
+
+`R/spec-registry.R` (`dashboard_registry()`) is a *separate* declarative
+registry describing every view, card, plot, variable mapping (REDCap ↔ eMed/IIS
+columns), and pseudocode. `R/spec-generate.R` turns it into a multi-sheet Excel
+workbook that lets the HSE IIS team recreate the dashboard in Power BI.
+
+It is independent of `metrics.yml` and must be kept in sync **manually** when
+views change. It is the document another team builds from, so a view changed
+here and not there becomes their bug, months later, with no way for them to know
+it drifted. If you change a view and cannot update the registry, say so
+explicitly rather than leaving it.

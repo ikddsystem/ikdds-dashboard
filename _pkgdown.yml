@@ -22,6 +22,11 @@ articles:
       - individual-patient-qa
       - data-quality-workflow
 
+  - title: Developing
+    navbar: Developing
+    contents:
+      - articles/architecture
+
 reference:
   - title: Launch the Dashboard
     contents:
@@ -29,6 +34,7 @@ reference:
       - app_ui
       - app_server
       - dashboard_config
+      - validate_dashboard_config
 
   - title: Data Sources
     contents:
@@ -105,6 +111,20 @@ reference:
       - metrics_registry
       - get_metric_config
       - reset_registry_cache
+
+  - title: Specification Registry
+    contents:
+      - dashboard_registry
+      - registry_fields
+      - registry_cards
+      - registry_filters
+      - registry_colours
+      - registry_stat_methods
+
+  - title: Specification Handover
+    contents:
+      - generate_spec_excel
+      - generate_spec_html
 
   - title: Statistical Helpers
     contents:

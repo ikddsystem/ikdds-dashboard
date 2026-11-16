@@ -31,14 +31,26 @@ jobs:
         with:
           use-public-rspm: true
 
+      # `ikdds` is a Suggests-only, requireNamespace()-guarded dependency used
+      # solely by the REDCap data source. It lives in the private ikdds-etl repo,
+      # so pak cannot resolve it from this repo's GITHUB_TOKEN and the default
+      # dependencies: "all" aborts with "Can't install dependency ikdds" before
+      # the site is ever built. The pkgdown site does not need it, so install
+      # hard dependencies only and name the site-build packages explicitly.
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::pkgdown, local::.
+          dependencies: '"hard"'
+          extra-packages: any::pkgdown, any::knitr, any::rmarkdown, local::.
           needs: website
 
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
         shell: Rscript {0}
+
+      # pkgdown renders every *.md in the package root into the site and does not
+      # consult .Rbuildignore, so CLAUDE.md would be published on this public site.
+      - name: Remove repo-internal pages from the site
+        run: python3 .github/scripts/strip_internal_pages.py docs CLAUDE
 
       - name: Deploy to GitHub pages 🚀
         if: github.event_name != 'pull_request'
